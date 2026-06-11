@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://employee-leave-system-api.onrender.com'
+  apiUrl: 'https://employeeleavesystem-w4mo.onrender.com'
 };
