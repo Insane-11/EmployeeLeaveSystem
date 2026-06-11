@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class LeaveRequestService {
-  private readonly baseUrl = `${environment.apiUrl}/api/leaverequests`;
+  private readonly baseUrl = `${environment.apiUrl}/api/LeaveRequests`;
 
   constructor(private http: HttpClient) {}
 
@@ -58,11 +58,11 @@ export class LeaveRequestService {
 
   getMyBalance(year?: number): Observable<LeaveBalanceResponse[]> {
     const params = year ? `?year=${year}` : '';
-    return this.http.get<LeaveBalanceResponse[]>(`${environment.apiUrl}/api/leavebalance${params}`);
+    return this.http.get<LeaveBalanceResponse[]>(`${environment.apiUrl}/api/LeaveBalances${params}`);
   }
 
   getUserBalance(userId: number, year?: number): Observable<LeaveBalanceResponse[]> {
     const params = year ? `?year=${year}` : '';
-    return this.http.get<LeaveBalanceResponse[]>(`${environment.apiUrl}/api/leavebalance/${userId}${params}`);
+    return this.http.get<LeaveBalanceResponse[]>(`${environment.apiUrl}/api/LeaveBalances/${userId}${params}`);
   }
 }
