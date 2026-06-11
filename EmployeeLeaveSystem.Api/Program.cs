@@ -6,6 +6,8 @@ using EmployeeLeaveSystem.Api.Data;
 using EmployeeLeaveSystem.Api.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -72,21 +74,6 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var app = builder.Build();
-
-app.UseExceptionHandler(exceptionHandlerApp =>
-{
-    exceptionHandlerApp.Run(async context =>
-    {
-        var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
-        context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new
-        {
-            error = exception?.Message,
-            stackTrace = exception?.StackTrace,
-            innerException = exception?.InnerException?.Message
-        });
-    });
-});
 
 if (app.Environment.IsDevelopment())
 {
