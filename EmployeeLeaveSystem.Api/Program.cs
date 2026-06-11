@@ -9,9 +9,14 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not set.");
+var isPostgres = connectionString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase) ||
+                 connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+                 connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase);
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("Host="))
+    if (isPostgres)
         options.UseNpgsql(connectionString);
     else
         options.UseSqlServer(connectionString);
