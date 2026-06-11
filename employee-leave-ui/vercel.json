@@ -1,6 +1,6 @@
 {
   "buildCommand": "ng build --configuration production",
-  "outputDirectory": "dist/employee-leave-ui",
+  "outputDirectory": "dist/employee-leave-ui/browser",
   "rewrites": [
     {
       "source": "/api/(.*)",
