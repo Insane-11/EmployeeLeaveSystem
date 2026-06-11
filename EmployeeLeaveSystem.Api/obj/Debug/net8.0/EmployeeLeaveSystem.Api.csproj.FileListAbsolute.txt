@@ -145,3 +145,6 @@ C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\o
 C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\obj\Debug\net8.0\EmployeeLeaveSystem.Api.pdb
 C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\obj\Debug\net8.0\EmployeeLeaveSystem.Api.genruntimeconfig.cache
 C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\obj\Debug\net8.0\ref\EmployeeLeaveSystem.Api.dll
+C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\bin\Debug\net8.0\appsettings.Production.json
+C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\bin\Debug\net8.0\Npgsql.dll
+C:\Users\rajin\my-opencode-project\EmployeeLeaveSystem\EmployeeLeaveSystem.Api\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

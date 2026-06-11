@@ -7,8 +7,14 @@ using EmployeeLeaveSystem.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("Host="))
+        options.UseNpgsql(connectionString);
+    else
+        options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,9 +44,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:4201")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        var origins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+        if (origins is { Length: > 0 })
+            policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
+        else
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
 
