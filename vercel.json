@@ -1,5 +1,4 @@
 {
-  "rootDirectory": "employee-leave-ui",
   "buildCommand": "ng build --configuration production",
   "outputDirectory": "dist/employee-leave-ui",
   "rewrites": [
