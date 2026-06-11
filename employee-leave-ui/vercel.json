@@ -5,6 +5,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://employee-leave-system-api.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
