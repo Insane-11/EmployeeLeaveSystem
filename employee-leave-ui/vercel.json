@@ -1,0 +1,10 @@
+{
+  "buildCommand": "ng build --prod",
+  "outputDirectory": "dist/employee-leave-ui",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://employee-leave-system-api.onrender.com/api/$1"
+    }
+  ]
+}
