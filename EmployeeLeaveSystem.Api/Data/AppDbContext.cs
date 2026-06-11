@@ -42,7 +42,7 @@ public class AppDbContext : DbContext
             entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
             entity.Property(u => u.Department).HasMaxLength(100);
             entity.Property(u => u.IsActive).HasDefaultValue(true);
-            entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(u => u.Role)
                   .WithMany(r => r.Users)
@@ -62,7 +62,7 @@ public class AppDbContext : DbContext
             entity.Property(l => l.Reason).HasMaxLength(1000);
             entity.Property(l => l.ReviewComment).HasMaxLength(500);
             entity.Property(l => l.DurationDays).HasColumnType("decimal(4,1)");
-            entity.Property(l => l.SubmittedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(l => l.SubmittedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(l => l.Employee)
                   .WithMany(u => u.LeaveRequests)
