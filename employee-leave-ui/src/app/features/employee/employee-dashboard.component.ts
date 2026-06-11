@@ -15,13 +15,14 @@ export class EmployeeDashboardComponent implements OnInit {
   constructor(private leaveRequestService: LeaveRequestService) {}
 
   ngOnInit(): void {
-    this.leaveRequestService.getMyBalance().subscribe(balances => {
-      this.balances = balances.filter(b => b.remainingDays > 0 || ['Annual', 'Sick', 'Personal'].includes(b.leaveType));
+    this.leaveRequestService.getMyBalance().subscribe({
+      next: balances => this.balances = balances.filter(b => b.remainingDays > 0 || ['Annual', 'Sick', 'Personal'].includes(b.leaveType)),
+      error: () => this.loading = false
     });
 
-    this.leaveRequestService.getMyRequests().subscribe(requests => {
-      this.recentRequests = requests.slice(0, 5);
-      this.loading = false;
+    this.leaveRequestService.getMyRequests().subscribe({
+      next: requests => { this.recentRequests = requests.slice(0, 5); this.loading = false; },
+      error: () => this.loading = false
     });
   }
 }
