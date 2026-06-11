@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using EmployeeLeaveSystem.Api.Data;
+using EmployeeLeaveSystem.Api.Models;
 using EmployeeLeaveSystem.Api.Models.DTOs.LeaveRequests;
 using EmployeeLeaveSystem.Api.Models.Entities;
 using EmployeeLeaveSystem.Api.Models.Enums;
@@ -10,28 +11,46 @@ public class LeaveRequestService : ILeaveRequestService
 {
     private readonly AppDbContext _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly ILeaveBalanceService _leaveBalanceService;
 
-    public LeaveRequestService(AppDbContext context, ICurrentUserService currentUser)
+    public LeaveRequestService(AppDbContext context, ICurrentUserService currentUser, ILeaveBalanceService leaveBalanceService)
     {
         _context = context;
         _currentUser = currentUser;
+        _leaveBalanceService = leaveBalanceService;
     }
 
-    public async Task<LeaveRequestResponse?> CreateLeaveRequestAsync(CreateLeaveRequest request, int employeeId)
+    public async Task<ServiceResult<LeaveRequestResponse>> CreateLeaveRequestAsync(CreateLeaveRequest request, int employeeId)
     {
+        if (request.StartDate.Date < DateTime.UtcNow.Date)
+            return ServiceResult<LeaveRequestResponse>.Failure("Start date cannot be in the past.");
+
+        if (request.EndDate < request.StartDate)
+            return ServiceResult<LeaveRequestResponse>.Failure("End date must be on or after the start date.");
+
         var duration = (int)(request.EndDate - request.StartDate).TotalDays + 1;
 
         if (duration <= 0)
-            return null;
+            return ServiceResult<LeaveRequestResponse>.Failure("Duration must be at least 1 day.");
+
+        var currentYear = DateTime.UtcNow.Year;
+        var remaining = await _leaveBalanceService.GetRemainingDaysAsync(employeeId, request.LeaveType, currentYear);
+
+        if (duration > remaining)
+            return ServiceResult<LeaveRequestResponse>.Failure(
+                $"Insufficient {request.LeaveType} leave balance. You have {remaining} day(s) remaining but requested {duration} day(s).");
+
+        var activeStatuses = new[] { (int)LeaveRequestStatusEnum.Pending, (int)LeaveRequestStatusEnum.Approved };
 
         var hasOverlap = await _context.LeaveRequests
             .AnyAsync(l => l.EmployeeId == employeeId
                 && l.StartDate <= request.EndDate
                 && l.EndDate >= request.StartDate
-                && l.StatusId == (int)LeaveRequestStatusEnum.Pending);
+                && activeStatuses.Contains(l.StatusId));
 
         if (hasOverlap)
-            return null;
+            return ServiceResult<LeaveRequestResponse>.Failure(
+                "You already have a leave request that overlaps with the selected dates.");
 
         var leaveRequest = new LeaveRequest
         {
@@ -48,7 +67,8 @@ public class LeaveRequestService : ILeaveRequestService
         _context.LeaveRequests.Add(leaveRequest);
         await _context.SaveChangesAsync();
 
-        return await GetFullResponseAsync(leaveRequest.Id);
+        var response = await GetFullResponseAsync(leaveRequest.Id);
+        return ServiceResult<LeaveRequestResponse>.Success(response!);
     }
 
     public async Task<List<LeaveRequestResponse>> GetMyLeaveRequestsAsync(int employeeId)
@@ -86,28 +106,43 @@ public class LeaveRequestService : ILeaveRequestService
         return MapToResponse(leaveRequest);
     }
 
-    public async Task<bool> UpdateLeaveRequestAsync(int id, UpdateLeaveRequest request, int employeeId)
+    public async Task<ServiceResult<bool>> UpdateLeaveRequestAsync(int id, UpdateLeaveRequest request, int employeeId)
     {
         var leaveRequest = await _context.LeaveRequests
             .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employeeId);
 
         if (leaveRequest is null || leaveRequest.StatusId != (int)LeaveRequestStatusEnum.Pending)
-            return false;
+            return ServiceResult<bool>.Failure("Leave request not found or is no longer pending.");
+
+        if (request.StartDate.Date < DateTime.UtcNow.Date)
+            return ServiceResult<bool>.Failure("Start date cannot be in the past.");
+
+        if (request.EndDate < request.StartDate)
+            return ServiceResult<bool>.Failure("End date must be on or after the start date.");
 
         var duration = (int)(request.EndDate - request.StartDate).TotalDays + 1;
 
         if (duration <= 0)
-            return false;
+            return ServiceResult<bool>.Failure("Duration must be at least 1 day.");
+
+        var currentYear = DateTime.UtcNow.Year;
+        var remaining = await _leaveBalanceService.GetRemainingDaysAsync(employeeId, request.LeaveType, currentYear);
+
+        if (duration > remaining)
+            return ServiceResult<bool>.Failure(
+                $"Insufficient {request.LeaveType} leave balance. You have {remaining} day(s) remaining but requested {duration} day(s).");
+
+        var activeStatuses = new[] { (int)LeaveRequestStatusEnum.Pending, (int)LeaveRequestStatusEnum.Approved };
 
         var hasOverlap = await _context.LeaveRequests
             .AnyAsync(l => l.Id != id
                 && l.EmployeeId == employeeId
                 && l.StartDate <= request.EndDate
                 && l.EndDate >= request.StartDate
-                && l.StatusId == (int)LeaveRequestStatusEnum.Pending);
+                && activeStatuses.Contains(l.StatusId));
 
         if (hasOverlap)
-            return false;
+            return ServiceResult<bool>.Failure("You already have a leave request that overlaps with the selected dates.");
 
         leaveRequest.LeaveType = request.LeaveType;
         leaveRequest.StartDate = request.StartDate;
@@ -116,7 +151,7 @@ public class LeaveRequestService : ILeaveRequestService
         leaveRequest.Reason = request.Reason;
 
         await _context.SaveChangesAsync();
-        return true;
+        return ServiceResult<bool>.Success(true);
     }
 
     public async Task<bool> CancelLeaveRequestAsync(int id, int employeeId)

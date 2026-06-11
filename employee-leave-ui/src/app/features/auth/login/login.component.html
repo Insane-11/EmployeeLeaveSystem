@@ -1,47 +1,54 @@
-<div class="login-container">
-  <h2>Login</h2>
-  <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input
-        id="email"
-        type="email"
-        class="form-control"
-        [(ngModel)]="model.email"
-        name="email"
-        required
-        email
-        #email="ngModel"
-      />
-      <div *ngIf="email.invalid && email.touched" class="text-danger">
-        Valid email is required.
-      </div>
+<div class="auth-container">
+  <div class="card auth-card">
+    <div class="card-body">
+      <h3 class="card-title text-center mb-4">Login</h3>
+
+      <div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            [class.is-invalid]="email.invalid && email.touched"
+            [(ngModel)]="model.email"
+            name="email"
+            required
+            email
+            #email="ngModel"
+          />
+          <div *ngIf="email.invalid && email.touched" class="invalid-feedback">
+            Valid email is required.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            [class.is-invalid]="password.invalid && password.touched"
+            [(ngModel)]="model.password"
+            name="password"
+            required
+            #password="ngModel"
+          />
+          <div *ngIf="password.invalid && password.touched" class="invalid-feedback">
+            Password is required.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid">
+          Login
+        </button>
+
+        <p class="text-center mt-3 mb-0">
+          Don't have an account? <a routerLink="/register">Register</a>
+        </p>
+      </form>
     </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input
-        id="password"
-        type="password"
-        class="form-control"
-        [(ngModel)]="model.password"
-        name="password"
-        required
-        #password="ngModel"
-      />
-      <div *ngIf="password.invalid && password.touched" class="text-danger">
-        Password is required.
-      </div>
-    </div>
-
-    <div *ngIf="error" class="text-danger">{{ error }}</div>
-
-    <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">
-      Login
-    </button>
-
-    <p class="mt-2">
-      Don't have an account? <a routerLink="/register">Register</a>
-    </p>
-  </form>
+  </div>
 </div>

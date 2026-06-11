@@ -1,0 +1,64 @@
+<h4 class="mb-4">New Leave Request</h4>
+
+<div *ngIf="success" class="alert alert-success">Leave request submitted successfully! Redirecting...</div>
+
+<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+<form (ngSubmit)="onSubmit()" #form="ngForm" *ngIf="!success">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Leave Type</label>
+      <select class="form-select" [(ngModel)]="model.leaveType" name="leaveType" required>
+        <option value="Annual">Annual</option>
+        <option value="Sick">Sick</option>
+        <option value="Personal">Personal</option>
+        <option value="Unpaid">Unpaid</option>
+      </select>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Remaining Balance</label>
+      <input class="form-control" [value]="selectedBalance?.remainingDays + ' days'" disabled />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-control" [(ngModel)]="model.startDate" name="startDate" required
+             [class.is-invalid]="startDateInPast" />
+      <div class="invalid-feedback" *ngIf="startDateInPast">
+        Start date cannot be in the past.
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-control" [(ngModel)]="model.endDate" name="endDate" required
+             [class.is-invalid]="endDateBeforeStart" />
+      <div class="invalid-feedback" *ngIf="endDateBeforeStart">
+        End date must be on or after start date.
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3" *ngIf="computedDays > 0">
+    <div class="col">
+      <span class="badge bg-info fs-6">{{ computedDays }} day(s)</span>
+      <span class="badge bg-danger ms-2 fs-6" *ngIf="exceedsBalance">
+        Exceeds remaining balance ({{ selectedBalance?.remainingDays }} left)
+      </span>
+      <span class="badge bg-success ms-2 fs-6" *ngIf="!exceedsBalance && selectedBalance">
+        {{ selectedBalance.remainingDays - computedDays }} days remaining after request
+      </span>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Reason (optional)</label>
+    <textarea class="form-control" rows="3" [(ngModel)]="model.reason" name="reason"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="form.invalid || submitting || !isDateValid || exceedsBalance">
+    <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+    Submit Request
+  </button>
+</form>

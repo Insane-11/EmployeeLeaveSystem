@@ -8,12 +8,16 @@ import { App } from './app';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
+import { MainLayoutComponent } from './core/layout/main-layout.component';
+import { ToastContainerComponent } from './core/layout/toast-container.component';
 
 @NgModule({
   declarations: [
     App,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    MainLayoutComponent,
+    ToastContainerComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,23 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+*.nupkg
+.vs/
+
+## Node / Angular
+node_modules/
+dist/
+*.log
+
+## IDE
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

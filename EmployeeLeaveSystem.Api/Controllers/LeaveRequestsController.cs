@@ -26,10 +26,10 @@ public class LeaveRequestsController : ControllerBase
     {
         var result = await _leaveRequestService.CreateLeaveRequestAsync(request, _currentUser.UserId);
 
-        if (result is null)
-            return BadRequest(new { message = "Invalid request. Check dates or overlapping leave." });
+        if (!result.IsSuccess)
+            return BadRequest(new { message = result.ErrorMessage });
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
     }
 
     [HttpGet]
@@ -55,8 +55,8 @@ public class LeaveRequestsController : ControllerBase
     {
         var result = await _leaveRequestService.UpdateLeaveRequestAsync(id, request, _currentUser.UserId);
 
-        if (!result)
-            return BadRequest(new { message = "Unable to update. Leave request may not exist, is not pending, or has date conflicts." });
+        if (!result.IsSuccess)
+            return BadRequest(new { message = result.ErrorMessage });
 
         return Ok(new { message = "Leave request updated successfully" });
     }

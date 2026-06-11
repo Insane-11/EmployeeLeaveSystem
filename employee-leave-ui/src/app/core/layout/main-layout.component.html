@@ -1,0 +1,63 @@
+<nav class="navbar navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <button class="navbar-toggler d-md-none" type="button" (click)="toggleSidebar()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">Leave System</a>
+    <div class="d-flex align-items-center">
+      <span class="text-white-50 me-3 small">{{ userName }}</span>
+      <button class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="sidebar" [class.sidebar-collapse]="collapsed" [class.show]="!collapsed">
+  <ul class="nav flex-column pt-2">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/employee/dashboard" routerLinkActive="active" *ngIf="isRole('Employee')">
+        Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/employee/my-requests" routerLinkActive="active" *ngIf="isRole('Employee')">
+        My Requests
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/employee/new-request" routerLinkActive="active" *ngIf="isRole('Employee')">
+        New Request
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/manager/dashboard" routerLinkActive="active" *ngIf="isRole('Manager')">
+        Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/manager/team-requests" routerLinkActive="active" *ngIf="isRole('Manager')">
+        Team Requests
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active" *ngIf="isRole('Admin')">
+        Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/admin/users" routerLinkActive="active" *ngIf="isRole('Admin')">
+        Users
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/admin/all-requests" routerLinkActive="active" *ngIf="isRole('Admin')">
+        All Requests
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="container-fluid p-4">
+    <router-outlet />
+  </div>
+</div>
