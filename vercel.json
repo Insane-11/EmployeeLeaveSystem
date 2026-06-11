@@ -1,3 +1,15 @@
 {
-  "rootDirectory": "employee-leave-ui"
+  "rootDirectory": "employee-leave-ui",
+  "buildCommand": "ng build --configuration production",
+  "outputDirectory": "dist/employee-leave-ui",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://employee-leave-system-api.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
