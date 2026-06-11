@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LeaveRequestService } from '../../core/services/leave-request.service';
 import { LeaveRequestResponse } from '../../core/models/leave-request.model';
 
@@ -7,22 +7,31 @@ import { LeaveRequestResponse } from '../../core/models/leave-request.model';
   standalone: false,
   templateUrl: './all-requests.component.html'
 })
-export class AllRequestsComponent implements OnInit {
+export class AllRequestsComponent implements OnInit, OnDestroy {
   requests: LeaveRequestResponse[] = [];
   filtered: LeaveRequestResponse[] = [];
   loading = true;
   filterStatus = '';
   page = 1;
   pageSize = 10;
+  private timeoutRef: any;
 
   constructor(private leaveRequestService: LeaveRequestService) {}
 
   ngOnInit(): void {
-    this.leaveRequestService.getAll().subscribe(requests => {
-      this.requests = requests;
-      this.applyFilters();
-      this.loading = false;
+    this.timeoutRef = setTimeout(() => this.loading = false, 5000);
+    this.leaveRequestService.getAll().subscribe({
+      next: requests => {
+        this.requests = requests;
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: () => this.loading = false
     });
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.timeoutRef);
   }
 
   applyFilters(): void {

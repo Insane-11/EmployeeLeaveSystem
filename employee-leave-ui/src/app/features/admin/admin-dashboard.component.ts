@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { LeaveRequestService } from '../../core/services/leave-request.service';
 import { UserResponse } from '../../core/models/user.model';
@@ -9,10 +9,11 @@ import { LeaveRequestResponse } from '../../core/models/leave-request.model';
   standalone: false,
   templateUrl: './admin-dashboard.component.html'
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   users: UserResponse[] = [];
   allRequests: LeaveRequestResponse[] = [];
   loading = true;
+  private timeoutRef: any;
 
   constructor(
     private userService: UserService,
@@ -20,14 +21,23 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.userService.getAll().subscribe(users => {
-      this.users = users;
+    this.timeoutRef = setTimeout(() => this.loading = false, 5000);
+    this.userService.getAll().subscribe({
+      next: users => this.users = users,
+      error: () => this.loading = false
     });
 
-    this.leaveRequestService.getAll().subscribe(requests => {
-      this.allRequests = requests;
-      this.loading = false;
+    this.leaveRequestService.getAll().subscribe({
+      next: requests => {
+        this.allRequests = requests;
+        this.loading = false;
+      },
+      error: () => this.loading = false
     });
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.timeoutRef);
   }
 
   get totalUsers(): number {

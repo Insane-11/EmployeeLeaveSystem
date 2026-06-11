@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { UserResponse, UpdateUserRequest } from '../../core/models/user.model';
 
@@ -7,11 +7,12 @@ import { UserResponse, UpdateUserRequest } from '../../core/models/user.model';
   standalone: false,
   templateUrl: './user-management.component.html'
 })
-export class UserManagementComponent implements OnInit {
+export class UserManagementComponent implements OnInit, OnDestroy {
   users: UserResponse[] = [];
   loading = true;
   editUser: UserResponse | null = null;
   editModel: UpdateUserRequest = {};
+  private timeoutRef: any;
 
   constructor(private userService: UserService) {}
 
@@ -19,11 +20,19 @@ export class UserManagementComponent implements OnInit {
     this.loadUsers();
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.timeoutRef);
+  }
+
   loadUsers(): void {
     this.loading = true;
-    this.userService.getAll().subscribe(users => {
-      this.users = users;
-      this.loading = false;
+    this.timeoutRef = setTimeout(() => this.loading = false, 5000);
+    this.userService.getAll().subscribe({
+      next: users => {
+        this.users = users;
+        this.loading = false;
+      },
+      error: () => this.loading = false
     });
   }
 
