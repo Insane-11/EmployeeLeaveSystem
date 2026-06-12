@@ -14,6 +14,15 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+  quickLogin(role: string): void {
+    this.error = '';
+    if (role === 'admin') {
+      this.model = { email: 'admin@admin.com', password: '' };
+    } else {
+      this.model = { email: '', password: '' };
+    }
+  }
+
   onSubmit(): void {
     this.error = '';
     this.authService.login(this.model).subscribe({

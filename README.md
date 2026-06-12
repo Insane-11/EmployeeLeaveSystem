@@ -1,70 +1,76 @@
 # Employee Leave Management System
 
-A full‑stack web application that streamlines employee leave requests. Employees submit requests, managers review them, and admins manage users and approvals — all wrapped in a clean Bootstrap‑powered UI.
+A full‑stack leave management application built with ASP.NET Core 8 and Angular. Employees submit leave requests, managers review their team's requests, and admins manage users and approvals.
 
-> **Live Demo** → [https://employee-leave-system.vercel.app](https://employee-leave-system.vercel.app)  
+> **Live Demo** → [https://employee-leave-system.vercel.app](https://employee-leave-system.vercel.app)
+>
+> **API Base** → `https://employeeleavesystem-w4mo.onrender.com`
 
 ---
 
 ## Features
 
-| Role      | Capabilities |
-|-----------|-------------|
-| 👤 Employee | Submit leave, view history, check remaining balance, cancel pending requests |
-| 👥 Manager  | View team leave requests (read‑only) |
-| 🔧 Admin    | Approve / reject any request, manage users (edit roles, delete) |
+| Role | Capabilities |
+|------|-------------|
+| 👤 **Employee** | Submit leave, view history & balance, cancel pending requests |
+| 👥 **Manager** | View team leave requests (read‑only dashboard) |
+| 🔧 **Admin** | Approve/reject any request, manage users (edit, delete, change roles) |
 
-- ✅ JWT authentication with role‑based access control  
-- ✅ Real‑time validation — past dates, overlaps, insufficient balance all return clear error messages  
-- ✅ Toast notifications & loading spinner on every API call  
-- ✅ Swagger API documentation at `/swagger`  
+- JWT authentication with role‑based access control
+- Validation — past dates, overlaps, insufficient balance all return clear errors
+- Toast notifications & loading spinners on every API call
+- Swagger API documentation at `/swagger`
+- Unit tests — 33 backend (xUnit + Moq) + 79 frontend (Vitest)
 
 ---
 
 ## Tech Stack
 
-| Layer      | Technology |
-|-----------|-----------|
-| **Backend**   | ASP.NET Core 8, Entity Framework Core, SQL Server, JWT (Bearer), BCrypt |
-| **Frontend**  | Angular 17, Bootstrap 5, TypeScript |
-| **Tooling**   | Git, Swagger / Swashbuckle, Visual Studio Code |
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | ASP.NET Core 8, Entity Framework Core, SQL Server / PostgreSQL, JWT (Bearer), BCrypt |
+| **Frontend** | Angular 22, Bootstrap 5, TypeScript, Vitest |
+| **Testing** | xUnit, Moq, EF Core InMemory (backend) — Vitest (frontend) |
+| **Deployment** | Render (backend + PostgreSQL), Vercel (frontend) |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────┐       JWT (Bearer)       ┌──────────────┐       EF Core       ┌──────────┐
-│  Angular 17  │ ──────────────────────▶  │  ASP.NET 8   │ ────────────────▶  │ SQL      │
-│  (localhost  │ ◀──────────────────────  │  Web API     │ ◀────────────────  │ Server   │
-│   :4200)     │      JSON responses      │  (:5131)     │                    │          │
-└─────────────┘                           └──────────────┘                    └──────────┘
+┌──────────────┐     JWT (Bearer)      ┌───────────────┐     EF Core      ┌────────────┐
+│   Angular 22  │ ───────────────────▶  │  ASP.NET 8    │ ──────────────▶  │ PostgreSQL │
+│  (Vercel)     │ ◀───────────────────  │  Web API      │ ◀──────────────  │ (Render)   │
+│               │     JSON responses    │  (Render)     │                  │            │
+└──────────────┘                        └───────────────┘                  └────────────┘
 ```
 
-- **RESTful API** — all communication is stateless JSON  
-- **JWT** — token stored in `localStorage`, attached by `HttpInterceptor`  
-- **Role Guards** — Angular route guards restrict pages per role  
-- **Lazy loading** — Employee, Manager, Admin modules load on demand  
+- RESTful API — stateless JSON communication
+- JWT stored in `localStorage`, attached by `HttpInterceptor`
+- Route guards restrict pages per role
+- Lazy‑loaded employee, manager, and admin modules
+- Vercel rewrites `/api/*` to the Render backend (same‑origin in production)
 
 ---
 
-## Local Setup
+## Quick Start
 
 ### Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - [Node.js 18+](https://nodejs.org/)
 - [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (LocalDB, Express, or full instance)
-- [Git](https://git-scm.com/)
 
-### 1. Clone & configure
+### 1. Clone
 
 ```bash
 git clone https://github.com/Insane-11/EmployeeLeaveSystem.git
 cd EmployeeLeaveSystem
 ```
 
-Update the connection string in `EmployeeLeaveSystem.Api/appsettings.json` if needed:
+### 2. Backend
+
+Update the connection string in `EmployeeLeaveSystem.Api/appsettings.json`:
 
 ```json
 "ConnectionStrings": {
@@ -72,36 +78,46 @@ Update the connection string in `EmployeeLeaveSystem.Api/appsettings.json` if ne
 }
 ```
 
-### 2. Backend
-
 ```bash
 cd EmployeeLeaveSystem.Api
 dotnet restore
-dotnet ef database update
-dotnet run --urls http://localhost:5131
+dotnet run --urls http://localhost:5000
 ```
 
-The API starts at `http://localhost:5131`. Swagger is at `http://localhost:5131/swagger`.
+The API starts at `http://localhost:5000`. Swagger at `/swagger`.
+
+> The admin user (`admin@admin.com` / `Admin123!`) is seeded automatically on first run.
 
 ### 3. Frontend
 
 ```bash
 cd employee-leave-ui
 npm install
-ng serve --port 4200
+ng serve
 ```
 
-Open `http://localhost:4200` in your browser.
+Open `http://localhost:4200`.
 
 ---
 
-## API Documentation
+## API Endpoints
 
-With the backend running, visit:
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/login` | — | Login |
+| POST | `/api/auth/register` | — | Register (creates Employee role only) |
+| GET | `/api/leaverequests` | Employee | My leave requests |
+| POST | `/api/leaverequests` | Employee | Create leave request |
+| GET | `/api/leaverequests/all` | Admin | All requests |
+| PUT | `/api/leaverequests/{id}/approve` | Admin | Approve request |
+| PUT | `/api/leaverequests/{id}/reject` | Admin | Reject request |
+| GET | `/api/users` | Admin | List all users |
+| PUT | `/api/users/{id}` | Admin | Update user |
+| DELETE | `/api/users/{id}` | Admin | Delete user |
+| GET | `/api/leavebalances` | Employee | My leave balances |
+| GET | `/api/leaverequests/team` | Manager | Team requests |
 
-▶ **http://localhost:5131/swagger**
-
-Swagger UI lists every endpoint with request/response schemas and lets you execute calls directly.
+Full documentation at `http://localhost:5000/swagger`.
 
 ---
 
@@ -112,45 +128,58 @@ EmployeeLeaveSystem/
 ├── EmployeeLeaveSystem.Api/        # ASP.NET Core 8 Backend
 │   ├── Controllers/                # Auth, LeaveRequests, Users, LeaveBalances
 │   ├── Data/                       # DbContext, EF Migrations
-│   ├── Middleware/                 # (future) custom middleware
 │   ├── Models/
 │   │   ├── DTOs/                   # Request / Response contracts
 │   │   ├── Entities/               # User, LeaveRequest, LeaveBalance, Role
-│   │   ├── Enums/                  # LeaveType, LeaveRequestStatus
-│   │   └── ServiceResult.cs        # Generic success/error wrapper
+│   │   └── ServiceResult.cs        # Generic response wrapper
 │   ├── Services/                   # Auth, User, LeaveRequest, LeaveBalance
-│   ├── Program.cs                  # App entry point
-│   └── appsettings.json            # Connection string, JWT config
+│   └── Program.cs                  # Entry point
 │
-├── employee-leave-ui/              # Angular 17 Frontend
+├── EmployeeLeaveSystem.Api.Tests/  # xUnit + Moq + InMemory
+│
+├── employee-leave-ui/              # Angular 22 Frontend
 │   ├── src/app/
 │   │   ├── core/
 │   │   │   ├── guards/             # AuthGuard, RoleGuard
-│   │   │   ├── interceptors/       # JwtInterceptor (auto-attach token, toast errors)
+│   │   │   ├── interceptors/       # JwtInterceptor
 │   │   │   ├── layout/             # MainLayout, ToastContainer
 │   │   │   ├── models/             # TypeScript interfaces
 │   │   │   └── services/           # Auth, User, LeaveRequest, Toast, Loading
 │   │   ├── features/
-│   │   │   ├── auth/               # LoginComponent, RegisterComponent
+│   │   │   ├── auth/               # Login (with quick-access pills), Register
 │   │   │   ├── employee/           # Dashboard, MyRequests, LeaveRequestForm
 │   │   │   ├── manager/            # Dashboard (team view)
 │   │   │   └── admin/              # Dashboard, AllRequests, UserManagement
 │   │   ├── app-module.ts
 │   │   └── app-routing-module.ts
-│   └── angular.json
+│   └── src/environments/           # environment.ts, environment.prod.ts
 │
-├── README.md
-└── DEPLOYMENT.md                   # Free deployment guide
+├── DEPLOYMENT.md                   # Deployment guide
+└── README.md
+```
+
+---
+
+## Testing
+
+```bash
+# Backend (33 tests)
+cd EmployeeLeaveSystem.Api.Tests
+dotnet test
+
+# Frontend (79 tests)
+cd employee-leave-ui
+npx vitest run
 ```
 
 ---
 
 ## Deployment
 
-See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a complete step‑by‑step guide to deploy the backend on Render (free PostgreSQL) and the frontend on Vercel — at zero cost.
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a complete guide to deploy on Render (backend + PostgreSQL) and Vercel (frontend) at zero cost.
 
 ---
 
 ## License
 
-This is a personal learning project. Not intended for commercial use.
+Personal learning project. Not intended for commercial use.

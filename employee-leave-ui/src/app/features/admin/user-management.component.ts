@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { UserResponse, UpdateUserRequest } from '../../core/models/user.model';
 
@@ -14,7 +14,10 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   editModel: UpdateUserRequest = {};
   private timeoutRef: any;
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -31,6 +34,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       next: users => {
         this.users = users;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => this.loading = false
     });

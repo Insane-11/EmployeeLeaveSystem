@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { LeaveRequestService } from '../../core/services/leave-request.service';
 import { LeaveRequestResponse, LeaveBalanceResponse } from '../../core/models/leave-request.model';
 
@@ -13,7 +13,10 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   loading = true;
   private timeoutRef: any;
 
-  constructor(private leaveRequestService: LeaveRequestService) {}
+  constructor(
+    private leaveRequestService: LeaveRequestService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.timeoutRef = setTimeout(() => this.loading = false, 5000);
@@ -23,7 +26,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
     });
 
     this.leaveRequestService.getMyRequests().subscribe({
-      next: requests => { this.recentRequests = requests.slice(0, 5); this.loading = false; },
+      next: requests => { this.recentRequests = requests.slice(0, 5); this.loading = false; this.cdr.detectChanges(); },
       error: () => this.loading = false
     });
   }

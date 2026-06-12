@@ -32,8 +32,6 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        request.RoleId = 3;
-
         var result = await _authService.Register(request);
 
         if (!result)

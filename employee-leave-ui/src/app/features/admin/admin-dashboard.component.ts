@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { LeaveRequestService } from '../../core/services/leave-request.service';
 import { UserResponse } from '../../core/models/user.model';
@@ -17,7 +17,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private userService: UserService,
-    private leaveRequestService: LeaveRequestService
+    private leaveRequestService: LeaveRequestService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +32,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       next: requests => {
         this.allRequests = requests;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => this.loading = false
     });

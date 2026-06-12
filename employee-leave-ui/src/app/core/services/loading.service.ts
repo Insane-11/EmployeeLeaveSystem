@@ -4,11 +4,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class LoadingService {
   private _loading = new BehaviorSubject<boolean>(false);
+  readonly loading$: Observable<boolean> = this._loading.asObservable();
   private _pendingCount = 0;
-
-  get loading$(): Observable<boolean> {
-    return this._loading.asObservable();
-  }
 
   get loading(): boolean {
     return this._loading.value;

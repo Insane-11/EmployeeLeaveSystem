@@ -79,7 +79,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseHttpsRedirection();
 }
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -97,6 +96,21 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+
+    if (!db.Users.Any(u => u.Email == "admin@admin.com"))
+    {
+        db.Users.Add(new EmployeeLeaveSystem.Api.Models.Entities.User
+        {
+            FirstName = "Admin",
+            LastName = "User",
+            Email = "admin@admin.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            RoleId = 1,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        });
+        db.SaveChanges();
+    }
 }
 
 app.Run();

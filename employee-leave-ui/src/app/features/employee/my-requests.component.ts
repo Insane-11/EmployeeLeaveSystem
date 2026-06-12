@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { LeaveRequestService } from '../../core/services/leave-request.service';
 import { LeaveRequestResponse } from '../../core/models/leave-request.model';
 
@@ -16,7 +16,10 @@ export class MyRequestsComponent implements OnInit, OnDestroy {
   pageSize = 5;
   private timeoutRef: any;
 
-  constructor(private leaveRequestService: LeaveRequestService) {}
+  constructor(
+    private leaveRequestService: LeaveRequestService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.timeoutRef = setTimeout(() => this.loading = false, 5000);
@@ -25,6 +28,7 @@ export class MyRequestsComponent implements OnInit, OnDestroy {
         this.allRequests = requests;
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => this.loading = false
     });
