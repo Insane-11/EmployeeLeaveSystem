@@ -73,14 +73,14 @@ public class LeaveRequestService : ILeaveRequestService
 
     public async Task<List<LeaveRequestResponse>> GetMyLeaveRequestsAsync(int employeeId)
     {
-        return await _context.LeaveRequests
+        var requests = await _context.LeaveRequests
             .Include(l => l.Employee)
             .Include(l => l.Reviewer)
             .Include(l => l.Status)
             .Where(l => l.EmployeeId == employeeId)
             .OrderByDescending(l => l.SubmittedAt)
-            .Select(l => MapToResponse(l))
             .ToListAsync();
+        return requests.Select(l => MapToResponse(l)).ToList();
     }
 
     public async Task<LeaveRequestResponse?> GetLeaveRequestByIdAsync(int id)
@@ -169,37 +169,37 @@ public class LeaveRequestService : ILeaveRequestService
 
     public async Task<List<LeaveRequestResponse>> GetTeamLeaveRequestsAsync(int managerId)
     {
-        return await _context.LeaveRequests
+        var requests = await _context.LeaveRequests
             .Include(l => l.Employee)
             .Include(l => l.Reviewer)
             .Include(l => l.Status)
             .Where(l => l.Employee.ManagerId == managerId)
             .OrderByDescending(l => l.SubmittedAt)
-            .Select(l => MapToResponse(l))
             .ToListAsync();
+        return requests.Select(l => MapToResponse(l)).ToList();
     }
 
     public async Task<List<LeaveRequestResponse>> GetAllLeaveRequestsAsync()
     {
-        return await _context.LeaveRequests
+        var requests = await _context.LeaveRequests
             .Include(l => l.Employee)
             .Include(l => l.Reviewer)
             .Include(l => l.Status)
             .OrderByDescending(l => l.SubmittedAt)
-            .Select(l => MapToResponse(l))
             .ToListAsync();
+        return requests.Select(l => MapToResponse(l)).ToList();
     }
 
     public async Task<List<LeaveRequestResponse>> GetPendingLeaveRequestsAsync()
     {
-        return await _context.LeaveRequests
+        var requests = await _context.LeaveRequests
             .Include(l => l.Employee)
             .Include(l => l.Reviewer)
             .Include(l => l.Status)
             .Where(l => l.StatusId == (int)LeaveRequestStatusEnum.Pending)
             .OrderByDescending(l => l.SubmittedAt)
-            .Select(l => MapToResponse(l))
             .ToListAsync();
+        return requests.Select(l => MapToResponse(l)).ToList();
     }
 
     public async Task<bool> ApproveLeaveRequestAsync(int id, int reviewerId, string? comment)
@@ -214,6 +214,12 @@ public class LeaveRequestService : ILeaveRequestService
         leaveRequest.ReviewedById = reviewerId;
         leaveRequest.ReviewComment = comment;
         leaveRequest.ReviewedAt = DateTime.UtcNow;
+
+        await _leaveBalanceService.DeductBalanceAsync(
+            leaveRequest.EmployeeId,
+            leaveRequest.LeaveType,
+            leaveRequest.DurationDays,
+            leaveRequest.SubmittedAt.Year);
 
         await _context.SaveChangesAsync();
         return true;

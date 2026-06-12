@@ -22,20 +22,26 @@ export class JwtInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    if (!this.skipPaths.some(p => req.url.includes(p))) {
-      this.loadingService.show();
-    }
+    const isAuthPath = this.skipPaths.some(p => req.url.includes(p));
+    let loadingShown = false;
 
-    const token = this.authService.getToken();
-    if (token) {
-      req = req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` }
-      });
+    if (!isAuthPath) {
+      this.loadingService.show();
+      loadingShown = true;
+
+      const token = this.authService.getToken();
+      if (token) {
+        req = req.clone({
+          setHeaders: { Authorization: `Bearer ${token}` }
+        });
+      }
     }
 
     return next.handle(req).pipe(
       timeout(15000),
-      finalize(() => this.loadingService.hide()),
+      finalize(() => {
+        if (loadingShown) this.loadingService.hide();
+      }),
       catchError((error: any) => {
         if (error.name === 'TimeoutError') {
           this.toastService.error('Request timed out. Please try again.');

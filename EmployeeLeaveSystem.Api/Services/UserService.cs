@@ -18,10 +18,10 @@ public class UserService : IUserService
 
     public async Task<List<UserResponse>> GetAllUsersAsync()
     {
-        return await _context.Users
+        var users = await _context.Users
             .Include(u => u.Role)
-            .Select(u => MapToResponse(u))
             .ToListAsync();
+        return users.Select(u => MapToResponse(u)).ToList();
     }
 
     public async Task<UserResponse?> GetUserByIdAsync(int id)
@@ -78,11 +78,11 @@ public class UserService : IUserService
 
     public async Task<List<UserResponse>> GetTeamMembersAsync()
     {
-        return await _context.Users
+        var users = await _context.Users
             .Include(u => u.Role)
             .Where(u => u.ManagerId == _currentUser.UserId)
-            .Select(u => MapToResponse(u))
             .ToListAsync();
+        return users.Select(u => MapToResponse(u)).ToList();
     }
 
     private static UserResponse MapToResponse(User user) => new()
