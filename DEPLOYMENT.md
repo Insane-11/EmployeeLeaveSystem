@@ -6,7 +6,7 @@ Deploy the Employee Leave Management System at **zero cost** using **Render** (b
 
 | Service | URL |
 |---------|-----|
-| **Frontend** (Vercel) | `https://employee-leave-system.vercel.app` |
+| **Frontend** (Vercel) | `https://employee-leave-system-ten.vercel.app` |
 | **Backend** (Render) | `https://employeeleavesystem-w4mo.onrender.com` |
 
 > ⚠️ Render's free tier spins down after 15 minutes of inactivity. The first request after idle takes 30–60 seconds to wake up.
@@ -204,7 +204,7 @@ Your `employee-leave-ui/vercel.json` proxies API requests to Render:
 ### 4d. Get your live URL
 
 After deployment, Vercel gives you a URL like:
-`https://employee-leave-system.vercel.app`
+`https://employee-leave-system-ten.vercel.app`
 
 You can rename it in Vercel Dashboard → **Settings** → **Domains**.
 
@@ -240,7 +240,7 @@ You can rename it in Vercel Dashboard → **Settings** → **Domains**.
 
 ## Verifying the Deployment
 
-1. Open `https://employee-leave-system.vercel.app`
+1. Open `https://employee-leave-system-ten.vercel.app`
 2. Register a new account (defaults to Employee role)
 3. Login and submit a leave request
 4. Login as admin (`admin@admin.com` / `Admin123!`) — auto‑seeded on first backend start

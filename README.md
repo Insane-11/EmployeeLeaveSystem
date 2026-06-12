@@ -2,7 +2,7 @@
 
 A full‑stack leave management application built with ASP.NET Core 8 and Angular. Employees submit leave requests, managers review their team's requests, and admins manage users and approvals.
 
-> **Live Demo** → [https://employee-leave-system.vercel.app](https://employee-leave-system.vercel.app)
+> **Live Demo** → [https://employee-leave-system-ten.vercel.app](https://employee-leave-system-ten.vercel.app)
 >
 > **API Base** → `https://employeeleavesystem-w4mo.onrender.com`
 
