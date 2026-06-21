@@ -22,4 +22,9 @@ dist/
 .DS_Store
 Thumbs.db
 
-# opencode planning docs.opencode/plans/
+# opencode planning docs
+.opencode/plans/
+
+# Ignore .NET build artifacts at any depth
+**/bin/
+**/obj/
